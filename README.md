@@ -120,4 +120,32 @@ Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 
 Creating Test Cases
 -------------------
-//TODO
+The existing Arquillian guides are a great resource give them a look: http://arquillian.org/guides/getting_started/
+The big things are to annotate your class with  @RunWith(Arquillian.class) and use the @Deployment for packaging.  Other than that everything is standard junit stuff.  Here is a sample:
+
+```
+@RunWith(Arquillian.class)
+public class UserDirectoryServiceTest {
+    @Deployment
+    public static JavaArchive createDeployment() {
+        return ShrinkWrap.create(JavaArchive.class);
+    }
+
+    @Test
+    public void testGetUser() {
+        UserDirectoryService uds = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+        User user = null;
+        try {
+            user = uds.getUser("admin");
+        } catch (UserNotDefinedException e) {
+            assertFalse(true);
+        }
+        assertNotNull(user);
+    }
+
+
+}
+```
+
+The ShrinkWrap API that is used in the @Deployment method is there to package up any test specific dependencies you need.  You should not add any Sakai dependencies that are in shared here, since those will already be available to your test web app.  So if you are used to writing Sakai tools this is no different.  So for testing core services you won't need to add anything, but if you need to add some utilities jars for great random data, or kernel-util, or whatever else you need, you do it with ShrinkWrap calls.  You can find many examples at https://github.com/arquillian/arquillian-examples.  Also there is a Spring module that can be used to integrate Spring: https://github.com/arquillian/arquillian-extension-spring.  I think its going to be a slippery slope if you attempt to recreate the whole Sakai spring tree on the client.  But it might be useful for client side only stuff as the test suite build up.
+
