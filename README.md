@@ -7,14 +7,117 @@ Unit testing in Sakai can be hard.  You end up either creating a lot of mocks or
 
 This framework aims to solve this problem.  What is does is let you junit (or testng) to write tests in the normal way.  You have full access to the real Sakai services.  You then package up any dependencies needed for your test using ShrinkWrap api.  The framework then packages up a war file with your test and dependencies and uses Tomcat's manager app and jmx to deploy and run your tests.  It then undeploys your test.war when its finished.  
 
-Configuration
-=============
-//TODO
+Project Dependencies
+--------------------
+* You need a running Sakai instance
+* Maven - you'll need maven 3 to build the container code
+
+Arquillian requires a container to run your tests in.  This suite is designed to work with a tomcat 7 remote container because that is what Sakai runs in.  Unfortunately there is no standard tomcat 7 remote container in the normal location here (https://github.com/arquillian/arquillian-container-tomcat).  So I have written one which hopefully jboss will pick up.  So you will need to get my fork in the meantime and build it.
+
+```
+git clone git@github.com:johntbush/arquillian-container-tomcat.git
+cd arquillian-container-tomcat
+mvn3 install
+```
+
+Ok you are done with that.  Now that you have the tomcat 7 remote container installed locally you can move on to setting up the project to run.
+
+Tomcat Configuration
+--------------------
+
+In order for this to work you need to make sure tomcat is running the manager app, and jmx is enabled.  You also need to adjust the tomcat users.
+
+* Turn on jmx in tomcat in setenv.sh or whatever tomcat env file you use
+```
+export JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=localhost";
+```
+* Adjust tomcat.home/conf/tomcat/tomat-users.xml.  You need a user with the 4 manager roles as described below
+```
+<tomcat-users>
+  <user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+  <role rolename="admin"/>
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-jmx"/>
+  <role rolename="manager-status"/>
+</tomcat-users>
+```
+* Make sure you have the manager app in your tomcat.home/webapps folder.  It should be there by default if you haven't removed it
+
+Test Suite Configuration
+------------------------
+Adjust the src/test/resources/arquillian.xml file to make your tomcat environment
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://jboss.org/schema/arquillian"
+    xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+      <engine>
+        <property name="deploymentExportPath">target/</property>
+    </engine>
+
+    <container qualifier="tomcat-remote-7" default="true">
+        <configuration>
+            <property name="jmxPort">8089</property>
+            <property name="host">localhost</property>
+            <property name="hostPort">8080</property>
+            <property name="user">admin</property>
+            <property name="pass">admin</property>
+        </configuration>
+    </container>
+</arquillian>
+```
 
 Running
-=======
-//TODO
+-------
+Make sure your tomcat server is running. Then invoke junit with maven or run inside your IDE in the normal was you run unit tests
+```
+mvn test
+```
+You should see in tomcat output like this, as the suite deploys, run, and undeploys the test app
+```
+Jan 11, 2013 8:59:19 AM org.apache.catalina.startup.HostConfig deployWAR
+INFO: Deploying web application archive /Users/jbush/Dev/tools/apache-tomcat-7.0.27/webapps/test.war
+Jan 11, 2013 8:59:22 AM org.apache.catalina.startup.HostConfig checkResources
+INFO: Undeploying context [/test]
+Jan 11, 2013 8:59:23 AM org.apache.catalina.startup.HostConfig deployWAR
+INFO: Deploying web application archive /Users/jbush/Dev/tools/apache-tomcat-7.0.27/webapps/test.war
+Jan 11, 2013 8:59:25 AM org.apache.catalina.startup.HostConfig checkResources
+INFO: Undeploying context [/test]
+```
 
-Add Test Cases
-==============
+Then the on the client side where you ran your tests, you see the normal surefire type of report like this.
+```
+------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running com.rsmart.sakai.ServerConfigurationServiceTest
+Jan 11, 2013 9:57:26 AM org.jboss.arquillian.container.impl.MapObject populate
+WARNING: Configuration contain properties not supported by the backing object org.jboss.arquillian.container.tomcat.remote_7.TomcatRemoteConfiguration
+Unused property entries: {hostPort=8080}
+Supported property names: [host, bindHttpPort, managerUrl, unpackArchive, httpPort, jmxVirtualHost, jmxUri, pass, jmxPort, bindAddress, urlCharset, user, appBase]
+Jan 11, 2013 9:57:29 AM org.jboss.arquillian.container.tomcat.ProtocolMetadataParser connect
+INFO: Connecting to JMX at service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.672 sec
+Running com.rsmart.sakai.UserDirectoryServiceTest
+Jan 11, 2013 9:57:32 AM org.jboss.arquillian.container.tomcat.ProtocolMetadataParser connect
+INFO: Connecting to JMX at service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.325 sec
+
+Results :
+
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 12 seconds
+[INFO] Finished at: Fri Jan 11 09:57:34 MST 2013
+[INFO] Final Memory: 22M/81M
+[INFO] ------------------------------------------------------------------------
+```
+
+Creating Test Cases
+-------------------
 //TODO
