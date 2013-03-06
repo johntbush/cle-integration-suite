@@ -17,9 +17,18 @@
         <sakai.version>2.9.0</sakai.version>
         <sakai.kernel.version>1.3.0</sakai.kernel.version>
         <arquillian.version>1.0.3.Final</arquillian.version>
+        <shrinkwrap.version>2.0.0-alpha-7</shrinkwrap.version>
+
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.resolver</groupId>
+                <artifactId>shrinkwrap-resolver-bom</artifactId>
+                <version>${shrinkwrap.version}</version>
+                <scope>test</scope>
+                <type>pom</type>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
@@ -45,31 +54,40 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12</version>
                 <configuration>
-                        <systemProperties>
-                            <property>
-                                <name>log4j.configuration</name>
-                                <value>log4j.properties</value>
-                            </property>
-                        </systemProperties>
-                    </configuration>
+                    <systemProperties>
+                        <property>
+                            <name>log4j.configuration</name>
+                            <value>log4j.properties</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
             </plugin>
         </plugins>
         <testResources>
             <testResource>
-              <directory>src/test/resources</directory>
-              <includes>
-                <include>*.properties</include>
-                  <include>*.xml</include>
-              </includes>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                    <include>*.xml</include>
+                    <include>*.yml</include>
+                    <include>*.txt</include>
+                </includes>
             </testResource>
-          </testResources>
+        </testResources>
     </build>
 
     <dependencies>
+        <!--dependency>
+            <groupId>org.jboss.arquillian</groupId>
+            <artifactId>arquillian-bom</artifactId>
+            <version>${arquillian.version}</version>
+            <scope>test</scope>
+            <type>pom</type>
+        </dependency-->
         <dependency>
-        	<groupId>log4j</groupId>
-        	<artifactId>log4j</artifactId>
-        	<version>1.2.17</version>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
             <scope>test</scope>
         </dependency>
 
@@ -110,23 +128,78 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <scope>test</scope>
-                </dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
-        	<groupId>org.jboss.arquillian.junit</groupId>
-        	<artifactId>arquillian-junit-core</artifactId>
-        	<version>${arquillian.version}</version>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-core</artifactId>
+            <version>${arquillian.version}</version>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+
+            <scope>test</scope>
+        </dependency>
+        <!--dependency>
+        	<groupId>org.jboss.shrinkwrap.resolver</groupId>
+        	<artifactId>shrinkwrap-resolver-api-maven</artifactId>
+        	<version>${shrinkwrap.version}</version>
+            <scope>test</scope>
+        </dependency-->
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+            <version>1.4.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+        <!--dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.2</version>
+            <scope>test</scope>
+        </dependency-->
+        <dependency>
+            <groupId>org.jyaml</groupId>
+            <artifactId>jyaml</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>com.h2database</groupId>
+        	<artifactId>h2</artifactId>
+        	<version>1.3.170</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>junit-benchmarks</artifactId>
+            <version>0.4.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
             <artifactId>arquillian-tomcat-remote-7</artifactId>
             <version>1.0.0.Final-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 </project>
