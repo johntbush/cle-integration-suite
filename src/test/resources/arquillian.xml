@@ -12,7 +12,7 @@
 
             <property name="jmxPort">8089</property>
             <property name="host">localhost</property>
-<!--            <property name="host">ec2-184-169-221-130.us-west-1.compute.amazonaws.com</property>
+          <!--  <property name="host">ec2-184-169-221-130.us-west-1.compute.amazonaws.com</property>
             <property name="jmxPort">8995</property>-->
             <property name="httpPort">8080</property>
             <property name="user">admin</property>
